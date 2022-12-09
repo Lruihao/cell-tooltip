@@ -1,14 +1,4 @@
-/**
- * Cell Tooltip  
- * 基于 Bootstrap 5 + Font Awesome 6 的消息提示插件  
- * https://getbootstrap.com/docs/5.2/components/alerts/
- * @class CellTooltip
- * @version 1.0.0
- * @updated 2022.12.09
- * @author Lruihao
- */
 const CellTooltip = function () {
-
   /**
    * 创建元素
    * @param {String} [parent = 'body'] parent selector
@@ -40,7 +30,7 @@ const CellTooltip = function () {
    * 创建 Tooltip 关闭按钮节点
    * 不启用 data-bs-dismiss="alert"，防止 BS 的关闭效果生效
    * @param {CellTooltip.prototype} tooltip
-   *  @return {Element} $btnClose
+   * @return {Element} $btnClose
    */
   const _createTooltipBtnClose = function (tooltip) {
     const $btnClose = document.createElement('button');
@@ -100,9 +90,7 @@ const CellTooltip = function () {
   /**
    * 设置 Tooltip 延迟关闭时间
    * @param {CellTooltip.prototype} tooltip
-   * @param {Number} [delay = 3000] 延迟关闭时间
-   * @return {CellTooltip}
-   * @function
+   * @param {Number} [delay = 3000] 延迟关闭时间，unit: ms
    */
   const _setDelayTime = function (tooltip, delay) {
     delay = delay ?? tooltip.option.delay ?? 3000;
@@ -116,17 +104,22 @@ const CellTooltip = function () {
   };
 
   /**
-   * Cell Tooltip.
+   * Cell Tooltip
+   * @class CellTooltip
+   * @classdesc 基于 Bootstrap 5 + Font Awesome 6 的消息提示插件  
+   * (Base on {@link https://getbootstrap.com/docs/5.2/components/alerts/|Bootstrap#Alerts})
+   * @param {Object} option 初始化设置
    * @param {String} [option.appendTo = 'body'] parent selector
-   * @param {String} [option.type] Tooltip type  
+   * @param {String} [option.type] Tooltip type,
    * optional values: ['primary', 'secondary', 'success', 'danger', 'error', 'warning', 'info', 'light', 'dark']
    * @param {String} [option.className = 'alert-light'] tooltip className in HTML
    * @param {String} [option.iconClass] className in HTML for icon element
    * @param {String} [option.content] Tooltip Content (HTML format is supported)
    * @param {String} [option.contentClass] className in HTML for content element
    * @param {Boolean} [option.closeable = true] 是否可关闭
-   * @param {Number} [option.delay = 3000] 延迟关闭时间 unit: ms
-   * @param {Object} option 初始化设置
+   * @param {Number} [option.delay = 3000] 延迟关闭时间，unit: ms
+   * @version 1.0.0
+   * @author Lruihao
    */
   function CellTooltip(option = {}) {
     const _proto = CellTooltip.prototype;
@@ -141,6 +134,7 @@ const CellTooltip = function () {
      * @returns {Element}
      * @name CellTooltip#find
      * @function
+     * @since 1.0.0
      */
     _proto.find = function (selector) {
       return this._$tooltip.querySelector(selector);
@@ -152,6 +146,7 @@ const CellTooltip = function () {
      * @returns {CellTooltip}
      * @name CellTooltip#setClassName
      * @function
+     * @since 1.0.0
      */
     _proto.setClassName = function (className) {
       className = className ?? this.option.className;
@@ -170,6 +165,7 @@ const CellTooltip = function () {
      * @returns {CellTooltip}
      * @name CellTooltip#setContent
      * @function
+     * @since 1.0.0
      */
     _proto.setContent = function (content) {
       this._$tooltipContent.innerHTML = content ?? this.option.content ?? '';
@@ -182,6 +178,7 @@ const CellTooltip = function () {
      * @returns {CellTooltip}
      * @name CellTooltip#setContentClass
      * @function
+     * @since 1.0.0
      */
     _proto.setContentClass = function (contentClass) {
       contentClass = contentClass ?? this.option.contentClass;
@@ -198,6 +195,7 @@ const CellTooltip = function () {
      * @returns {CellTooltip}
      * @name CellTooltip#setIcon
      * @function
+     * @since 1.0.0
      */
     _proto.setIcon = function (iconClass) {
       _setIcon(this, iconClass);
@@ -206,10 +204,11 @@ const CellTooltip = function () {
 
     /**
      * 显示 Tooltip 提示
-     * @param {Object} option 详见 constructor, 当不带入任何值时以初始化设置为主
+     * @param {Object} option see {@link CellTooltip|Constructor}
      * @return {CellTooltip}
      * @name CellTooltip#show
      * @function
+     * @since 1.0.0
      */
     _proto.show = function (option = {}) {
       // 'error' is alias of type 'danger'
@@ -236,6 +235,7 @@ const CellTooltip = function () {
      * @return {CellTooltip}
      * @name CellTooltip#hide
      * @function
+     * @since 1.0.0
      */
     _proto.hide = () => {
       this._$tooltip.classList.remove('show');
