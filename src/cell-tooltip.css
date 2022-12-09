@@ -1,0 +1,52 @@
+/* 
+ * Cell Tooltip Style
+ * @version 1.0.0
+ * @updated 2022.12.09
+ * @author Lruihao
+ */
+.cell-tooltip {
+  min-height: 3.125rem;
+  height: auto;
+  min-width: 200px;
+  margin: 1rem 1rem 2rem !important;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  position: fixed !important;
+  bottom: 0rem;
+  left: 0rem;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  outline: none;
+  z-index: 9999 !important;
+  transition-duration: 0.25s;
+}
+.cell-tooltip-icon {
+  margin-right: 0.5rem;
+  font-size: 1.5rem;
+}
+.cell-tooltip.alert-dismissible .btn-close:focus {
+  outline: 0;
+  box-shadow: none;
+}
+@media (min-width: 576px) {
+  .cell-tooltip {
+    max-width: 60%;
+  }
+}
+@media (min-width: 768px) {
+  .cell-tooltip {
+    max-width: 50%;
+  }
+}
+@media (min-width: 992px) {
+  .cell-tooltip {
+    max-width: 40%;
+  }
+}
+@media (min-width: 1200px) {
+  .cell-tooltip {
+    max-width: 30%;
+  }
+}
