@@ -39,10 +39,7 @@ const CellTooltip = function () {
     $btnClose.setAttribute('aria-label', 'Close');
     // 设置 Tooltip 关闭事件监听
     $btnClose.addEventListener('click', function () {
-      tooltip._$tooltip.classList.remove('show');
-      setTimeout(() => {
-        tooltip._$tooltip.classList.add('d-none');
-      }, 250);
+      tooltip.hide();
     });
     tooltip._$tooltip.appendChild($btnClose);
     return $btnClose;
