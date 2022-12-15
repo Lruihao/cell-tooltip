@@ -2,14 +2,19 @@ const CellTooltip = function () {
   /**
    * 创建元素
    * @param {String} [parent = 'body'] parent selector
+   * @param {String} [option.position = 'top-center'] Tooltip 位置，
+   * 可选值：['top-start', 'top-center', 'top-end', 'bottom-start', 'bottom-center', 'bottom-end', 'start-center', 'end-center']
+   * @param {Number} [option.offset = 0] Tooltip 偏移量，unit: px
    * @return {Element} $tooltipEle
    */
-  const _createElement = function (parent = 'body') {
+  const _createElement = function (parent = 'body', position = 'top-center', offset = 0) {
     const $tooltipEle = document.createElement('div');
     $tooltipEle.className = 'cell-tooltip alert alert-dismissible fade d-none';
     $tooltipEle.setAttribute('tabindex', '-1');
     $tooltipEle.setAttribute('role', 'alert');
     $tooltipEle.setAttribute('aria-hidden', true);
+    $tooltipEle.dataset.position = position;
+    $tooltipEle.style = `--ct-offset: ${offset}px`;
     document.querySelector(parent).appendChild($tooltipEle);
     return $tooltipEle;
   };
@@ -97,31 +102,46 @@ const CellTooltip = function () {
     tooltip._timer = setTimeout(() => {
       tooltip.hide();
     }, delay);
-    return this;
+  };
+  /**
+   * 设置 Tooltip 位置
+   * @param {CellTooltip.prototype} tooltip
+   * @param {String} [option.position = 'top-center'] Tooltip 位置，
+   * 可选值：['top-start', 'top-center', 'top-end', 'bottom-start', 'bottom-center', 'bottom-end', 'start-center', 'end-center']
+   * @param {Number} [option.offset = 0] Tooltip 偏移量，unit: px
+   */
+  const _setPosition = function (tooltip, position, offset) {
+    position = position ?? tooltip.option.position ?? 'top-center';
+    offset = offset ?? tooltip.option.offset ?? 0;
+    tooltip._$tooltip.dataset.position = position;
+    tooltip._$tooltip.style = `--ct-offset: ${offset}px`;
   };
 
   /**
-   * Cell Tooltip
+   * Constructor of Cell Tooltip
    * @class CellTooltip
    * @classdesc 基于 Bootstrap 5 + Font Awesome 6 的消息提示插件  
    * (Base on {@link https://getbootstrap.com/docs/5.2/components/alerts/|Bootstrap#Alerts})
    * @param {Object} option 初始化设置
    * @param {String} [option.appendTo = 'body'] parent selector
-   * @param {String} [option.type] Tooltip type,
-   * optional values: ['primary', 'secondary', 'success', 'danger', 'error', 'warning', 'info', 'light', 'dark']
+   * @param {String} [option.type] Tooltip 类型，
+   * 可选值：['primary', 'secondary', 'success', 'danger', 'error', 'warning', 'info', 'light', 'dark']
    * @param {String} [option.className = 'alert-light'] tooltip className in HTML
    * @param {String} [option.iconClass] className in HTML for icon element
    * @param {String} [option.content] Tooltip Content (HTML format is supported)
    * @param {String} [option.contentClass] className in HTML for content element
    * @param {Boolean} [option.closeable = true] 是否可关闭
    * @param {Number} [option.delay = 3000] 延迟关闭时间，unit: ms
+   * @param {String} [option.position = 'top-center'] Tooltip 位置，
+   * 可选值：['top-start', 'top-center', 'top-end', 'bottom-start', 'bottom-center', 'bottom-end', 'start-center', 'end-center']
+   * @param {Number} [option.offset = 0] Tooltip 偏移量，unit: px
    * @version 1.0.0
    * @author Lruihao
    */
   function CellTooltip(option = {}) {
     const _proto = CellTooltip.prototype;
     this.option = option;
-    this._$tooltip = _createElement(this.option.appendTo);
+    this._$tooltip = _createElement(this.option.appendTo, this.option.position, this.option.offset);
     this._$tooltipContent = _createTooltipContent(this._$tooltip);
     this._$btnClose = _createTooltipBtnClose(this);
 
@@ -220,6 +240,7 @@ const CellTooltip = function () {
           .setClassName(option.className);
       _setDelayTime(this, option.delay);
       _setCloseBtn(this, option.closeable);
+      _setPosition(this, option.position, option.offset);
       this._$tooltip.classList.remove('d-none');
       setTimeout(() => {
         this._$tooltip.classList.add('show');

@@ -1,26 +1,61 @@
 /* 
  * Cell Tooltip Style
- * @version 1.0.0
+ * @version 1.0.1
  * @author Lruihao
  */
-.cell-tooltip {
-  min-height: 3.125rem;
-  height: auto;
-  min-width: 200px;
-  margin: 1rem 1rem 2rem !important;
+ .cell-tooltip {
+  position: fixed !important;
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
   align-items: center;
-  position: fixed !important;
-  bottom: 0rem;
-  left: 0rem;
+  min-height: 3.125rem;
+  height: auto;
+  min-width: 200px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
   overflow: hidden;
   outline: none;
   z-index: 9999 !important;
   transition-duration: 0.25s;
+  margin: 1rem !important;
 }
+.cell-tooltip[data-position='top-start'] {
+  top: var(--ct-offset, 0);
+  left: 0;
+}
+.cell-tooltip[data-position='top-center'] {
+  top: var(--ct-offset, 0);
+  left: 50%;
+  transform: translateX(-50%);
+}
+.cell-tooltip[data-position='top-end'] {
+  top: var(--ct-offset, 0);
+  right: 0;
+}
+.cell-tooltip[data-position='bottom-start'] {
+  bottom: var(--ct-offset, 0);
+  left: 0;
+}
+.cell-tooltip[data-position='bottom-center'] {
+  bottom: var(--ct-offset, 0);
+  left: 50%;
+  transform: translateX(-50%);
+}
+.cell-tooltip[data-position='bottom-end'] {
+  bottom: var(--ct-offset, 0);
+  right: 0;
+}
+.cell-tooltip[data-position='start-center'] {
+  left: var(--ct-offset, 0);
+  top: 50%;
+  transform: translateY(-50%);
+}
+.cell-tooltip[data-position='end-center'] {
+  right: var(--ct-offset, 0);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
 .cell-tooltip-icon {
   margin-right: 0.5rem;
   font-size: 1.5rem;

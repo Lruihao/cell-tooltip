@@ -21,20 +21,22 @@
 <a name="new_CellTooltip_new"></a>
 
 ### new CellTooltip(option)
-Cell Tooltip
+Constructor of Cell Tooltip
 
 
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
 | option | <code>Object</code> |  | 初始化设置 |
 | [option.appendTo] | <code>String</code> | <code>&#x27;body&#x27;</code> | parent selector |
-| [option.type] | <code>String</code> |  | Tooltip type, optional values: ['primary', 'secondary', 'success', 'danger', 'error', 'warning', 'info', 'light', 'dark'] |
+| [option.type] | <code>String</code> |  | Tooltip 类型， 可选值：['primary', 'secondary', 'success', 'danger', 'error', 'warning', 'info', 'light', 'dark'] |
 | [option.className] | <code>String</code> | <code>&#x27;alert-light&#x27;</code> | tooltip className in HTML |
 | [option.iconClass] | <code>String</code> |  | className in HTML for icon element |
 | [option.content] | <code>String</code> |  | Tooltip Content (HTML format is supported) |
 | [option.contentClass] | <code>String</code> |  | className in HTML for content element |
 | [option.closeable] | <code>Boolean</code> | <code>true</code> | 是否可关闭 |
 | [option.delay] | <code>Number</code> | <code>3000</code> | 延迟关闭时间，unit: ms |
+| [option.position] | <code>String</code> | <code>&#x27;top-center&#x27;</code> | Tooltip 位置， 可选值：['top-start', 'top-center', 'top-end', 'bottom-start', 'bottom-center', 'bottom-end', 'start-center', 'end-center'] |
+| [option.offset] | <code>Number</code> | <code>0</code> | Tooltip 偏移量，unit: px |
 
 <a name="CellTooltip+find"></a>
 
