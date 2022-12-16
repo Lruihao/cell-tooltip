@@ -14,7 +14,7 @@ const CellTooltip = function () {
     $tooltipEle.setAttribute('role', 'alert');
     $tooltipEle.setAttribute('aria-hidden', true);
     $tooltipEle.dataset.position = position;
-    $tooltipEle.style = `--ct-offset: ${offset}px`;
+    $tooltipEle.style.setProperty('--ct-offset', `${offset}px`);
     document.querySelector(parent).appendChild($tooltipEle);
     return $tooltipEle;
   };
@@ -26,7 +26,7 @@ const CellTooltip = function () {
    */
   const _createTooltipContent = function ($tooltip) {
     const $tooltipContent = document.createElement('div');
-    $tooltipContent.classList.add('cell-tooltip-content');
+    $tooltipContent.className = 'cell-tooltip-content';
     $tooltip.appendChild($tooltipContent);
     return $tooltipContent;
   };
@@ -39,7 +39,7 @@ const CellTooltip = function () {
    */
   const _createTooltipBtnClose = function (tooltip) {
     const $btnClose = document.createElement('button');
-    $btnClose.classList.add('btn-close');
+    $btnClose.className = 'btn-close';
     $btnClose.type = 'button';
     $btnClose.setAttribute('aria-label', 'Close');
     // 设置 Tooltip 关闭事件监听
@@ -69,20 +69,17 @@ const CellTooltip = function () {
   const _setIcon = function (tooltip, iconClass) {
     iconClass = iconClass ?? tooltip.option.iconClass ?? '';
     let $tooltipIcon = tooltip.find('.cell-tooltip-icon');
+    if (!iconClass) {
+      return $tooltipIcon?.classList.add('d-none');
+    }
     // 首次渲染 Icon
     if (!$tooltipIcon) {
-      if (!iconClass) {
-        return;
-      }
       $tooltipIcon = document.createElement('i');
-      $tooltipIcon.className = `cell-tooltip-icon ${iconClass}`;
+      $tooltipIcon.classList.add('cell-tooltip-icon', ...iconClass.split(' '));
       tooltip._$tooltip.insertBefore($tooltipIcon, tooltip._$tooltipContent);
       return;
     }
     // 修改渲染后的 Icon
-    if (!iconClass) {
-      return $tooltipIcon.classList.add('d-none');
-    }
     $tooltipIcon.classList.value = `svg-inline--fa cell-tooltip-icon ${iconClass}`;
     const {prefix, iconName: icon} = FontAwesome.parse.icon(iconClass);
     $tooltipIcon.dataset.prefix = prefix;
@@ -111,10 +108,8 @@ const CellTooltip = function () {
    * @param {Number} [option.offset = 0] Tooltip 偏移量，unit: px
    */
   const _setPosition = function (tooltip, position, offset) {
-    position = position ?? tooltip.option.position ?? 'top-center';
-    offset = offset ?? tooltip.option.offset ?? 0;
-    tooltip._$tooltip.dataset.position = position;
-    tooltip._$tooltip.style = `--ct-offset: ${offset}px`;
+    tooltip._$tooltip.dataset.position = position ?? tooltip.option.position ?? 'top-center';
+    tooltip._$tooltip.style = `--ct-offset: ${offset ?? tooltip.option.offset ?? 0}px`;
   };
 
   /**
@@ -172,7 +167,7 @@ const CellTooltip = function () {
       }
       className = className ?? 'alert-light';
       this._$tooltip.className = 'cell-tooltip alert alert-dismissible fade';
-      this._$tooltip.className += ` ${className}`;
+      this._$tooltip.classList.add(...className.split(' '));
       return this;
     };
 
@@ -201,7 +196,7 @@ const CellTooltip = function () {
       contentClass = contentClass ?? this.option.contentClass;
       this._$tooltipContent.className = 'cell-tooltip-content';
       if (contentClass) {
-        this._$tooltipContent.className += ` ${contentClass}`;
+        this._$tooltipContent.classList.add(...contentClass.split(' '));
       }
       return this;
     };
@@ -228,7 +223,7 @@ const CellTooltip = function () {
      * @since 1.0.0
      */
     _proto.show = function (option = {}) {
-      // 'error' is alias of type 'danger'
+      // 'error' is an alias of type 'danger'
       option.type = option.type === 'error' ? 'danger' : (option.type ?? this.option.type);
       if (option.type) {
         this.typeClass = `alert-${option.type}`;
