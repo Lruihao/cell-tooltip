@@ -299,7 +299,7 @@ const CellTooltip = (function () {
        * type: ['success', 'error', 'warning', 'info']
        * @param {Object} option see {@link CellTooltip#show}
        * @return {CellTooltip}
-       * @name CellTooltip#[type]
+       * @name CellTooltip#{type}
        * @function
        * @since 1.0.3
        */

@@ -17,7 +17,7 @@
     * [.setIcon([iconClass])](#CellTooltip+setIcon) ⇒ [<code>CellTooltip</code>](#CellTooltip)
     * [.show(option)](#CellTooltip+show) ⇒ [<code>CellTooltip</code>](#CellTooltip)
     * [.hide()](#CellTooltip+hide) ⇒ [<code>CellTooltip</code>](#CellTooltip)
-    * [.[type](option)](#CellTooltip+[type]) ⇒ [<code>CellTooltip</code>](#CellTooltip)
+    * [.{type}(option)](#CellTooltip+{type}) ⇒ [<code>CellTooltip</code>](#CellTooltip)
 
 <a name="new_CellTooltip_new"></a>
 
@@ -118,9 +118,9 @@ Constructor of Cell Tooltip
 
 **Kind**: instance method of [<code>CellTooltip</code>](#CellTooltip)  
 **Since**: 1.0.0  
-<a name="CellTooltip+[type]"></a>
+<a name="CellTooltip+{type}"></a>
 
-### cellTooltip.[type](option) ⇒ [<code>CellTooltip</code>](#CellTooltip)
+### cellTooltip.{type}(option) ⇒ [<code>CellTooltip</code>](#CellTooltip)
 显示指定类型的 Tooltip 提示<br>
 type: ['success', 'error', 'warning', 'info']
 
