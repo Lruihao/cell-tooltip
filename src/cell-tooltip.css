@@ -1,9 +1,8 @@
 /* 
  * Cell Tooltip Style
- * @version 1.0.2
  * @author Lruihao
  */
- :root {
+:root {
   --ct-duration: 250ms;
   --ct-offset: 0;
 }

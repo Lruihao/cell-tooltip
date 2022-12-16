@@ -19,8 +19,8 @@ const CellTooltip = (function () {
   /**
    * 创建元素
    * @param {String} [parent = 'body'] parent selector
-   * @param {String} [option.position = 'top-center'] Tooltip 位置，
-   * 可选值：['top-start', 'top-center', 'top-end', 'bottom-start', 'bottom-center', 'bottom-end', 'start-center', 'end-center']
+   * @param {String} [option.position = 'top-center'] Tooltip 位置，可选值：<br>
+   * ['top-start', 'top-center', 'top-end', 'bottom-start', 'bottom-center', 'bottom-end', 'start-center', 'end-center']
    * @param {Number} [option.offset = 0] Tooltip 偏移量，unit: px
    * @return {Element} $tooltipEle
    */
@@ -71,8 +71,8 @@ const CellTooltip = (function () {
    * 设置 Tooltip 类名
    * @param {CellTooltip.prototype} tooltip
    * @param {String} [className = 'alert-light'] tooltip's className in HTML
-   * @param {String} [type] Tooltip 类型，
-   * 可选值：['primary', 'secondary', 'success', 'danger', 'error', 'warning', 'info', 'light', 'dark']
+   * @param {String} [type] Tooltip 类型，可选值：<br>
+   * ['primary', 'secondary', 'success', 'danger', 'error', 'warning', 'info', 'light', 'dark']
    */
   const _setClassName = function (tooltip, className, type) {
     className = className ?? tooltip.option.className;
@@ -101,8 +101,8 @@ const CellTooltip = (function () {
    * 设置 Icon
    * @param {CellTooltip.prototype} tooltip
    * @param {String} [iconClass] className in HTML for font-awesome icon element
-   * @param {String} [type] Tooltip 类型，
-   * 可选值：['primary', 'secondary', 'success', 'danger', 'error', 'warning', 'info', 'light', 'dark']
+   * @param {String} [type] Tooltip 类型，可选值：<br>
+   * ['primary', 'secondary', 'success', 'danger', 'error', 'warning', 'info', 'light', 'dark']
    */
   const _setIcon = function (tooltip, iconClass, type) {
     iconClass = iconClass ?? tooltip.option.iconClass ?? '';
@@ -145,8 +145,8 @@ const CellTooltip = (function () {
   /**
    * 设置 Tooltip 位置
    * @param {CellTooltip.prototype} tooltip
-   * @param {String} [option.position = 'top-center'] Tooltip 位置，
-   * 可选值：['top-start', 'top-center', 'top-end', 'bottom-start', 'bottom-center', 'bottom-end', 'start-center', 'end-center']
+   * @param {String} [option.position = 'top-center'] Tooltip 位置，可选值：<br>
+   * ['top-start', 'top-center', 'top-end', 'bottom-start', 'bottom-center', 'bottom-end', 'start-center', 'end-center']
    * @param {Number} [option.offset = 0] Tooltip 偏移量，unit: px
    */
   const _setPosition = function (tooltip, position, offset) {
@@ -161,18 +161,18 @@ const CellTooltip = (function () {
    * (Base on {@link https://getbootstrap.com/docs/5.2/components/alerts/|Bootstrap#Alerts})
    * @param {Object} option 初始化设置
    * @param {String} [option.appendTo = 'body'] parent selector
-   * @param {String} [option.type] Tooltip 类型，
-   * 可选值：['primary', 'secondary', 'success', 'danger', 'error', 'warning', 'info', 'light', 'dark']
+   * @param {String} [option.type] Tooltip 类型，可选值：<br>
+   * ['primary', 'secondary', 'success', 'danger', 'error', 'warning', 'info', 'light', 'dark']
    * @param {String} [option.className = 'alert-light'] tooltip className in HTML
    * @param {String} [option.iconClass] className in HTML for icon element
    * @param {String} [option.content] Tooltip Content (HTML format is supported)
    * @param {String} [option.contentClass] className in HTML for content element
    * @param {Boolean} [option.closeable = true] 是否可关闭
    * @param {Number} [option.delay = 3000] 延迟关闭时间，unit: ms
-   * @param {String} [option.position = 'top-center'] Tooltip 位置，
-   * 可选值：['top-start', 'top-center', 'top-end', 'bottom-start', 'bottom-center', 'bottom-end', 'start-center', 'end-center']
+   * @param {String} [option.position = 'top-center'] Tooltip 位置，可选值：<br>
+   * ['top-start', 'top-center', 'top-end', 'bottom-start', 'bottom-center', 'bottom-end', 'start-center', 'end-center']
    * @param {Number} [option.offset = 0] Tooltip 偏移量，unit: px
-   * @version 1.0.0
+   * @version 1.0.3
    * @author Lruihao
    */
   function CellTooltip(option = {}) {
@@ -291,6 +291,24 @@ const CellTooltip = (function () {
       clearTimeout(this._timer);
       return this;
     };
+
+    // generate aliases of method CellTooltip#show
+    for (const type of ['success', 'error', 'warning', 'info']) {
+      /**
+       * 显示指定类型的 Tooltip 提示<br>
+       * type: ['success', 'error', 'warning', 'info']
+       * @param {Object} option see {@link CellTooltip#show}
+       * @return {CellTooltip}
+       * @name CellTooltip#[type]
+       * @function
+       * @since 1.0.3
+       */
+      _proto[type] = function (option = {}) {
+        option.type = type;
+        this.show(option);
+        return this;
+      };
+    }
   }
   return CellTooltip;
 })();
