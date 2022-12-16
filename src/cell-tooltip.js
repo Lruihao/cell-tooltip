@@ -1,5 +1,10 @@
 const CellTooltip = function () {
   /**
+   * Tooltip 淡入淡出动画时长，unit: ms
+   * @default var(--ct-duration)
+   */
+  const CT_DURATION = Number(getComputedStyle(document.documentElement).getPropertyValue('--ct-duration').trim().slice(0, -2));
+  /**
    * 创建元素
    * @param {String} [parent = 'body'] parent selector
    * @param {String} [option.position = 'top-center'] Tooltip 位置，
@@ -254,7 +259,7 @@ const CellTooltip = function () {
       this._$tooltip.classList.remove('show');
       setTimeout(() => {
         this._$tooltip.classList.add('d-none');
-      }, 250);
+      }, CT_DURATION);
       clearTimeout(this._timer);
       return this;
     };
