@@ -1,9 +1,21 @@
-const CellTooltip = function () {
+const CellTooltip = (function () {
   /**
    * Tooltip 淡入淡出动画时长，unit: ms
    * @default var(--ct-duration)
    */
   const CT_DURATION = Number(getComputedStyle(document.documentElement).getPropertyValue('--ct-duration').trim().slice(0, -2));
+
+  /**
+   * Tooltip 类型对应的 iconClass
+   */
+  const ICON_MAP = {
+    warning: 'fa-solid fa-exclamation-triangle',
+    success: 'fa-solid fa-check-circle',
+    info: 'fa-solid fa-info-circle',
+    error: 'fa-solid fa-times-circle',
+    danger: 'fa-solid fa-times-circle'
+  };
+
   /**
    * 创建元素
    * @param {String} [parent = 'body'] parent selector
@@ -56,6 +68,25 @@ const CellTooltip = function () {
   };
 
   /**
+   * 设置 Tooltip 类名
+   * @param {CellTooltip.prototype} tooltip
+   * @param {String} [className = 'alert-light'] tooltip's className in HTML
+   * @param {String} [type] Tooltip 类型，
+   * 可选值：['primary', 'secondary', 'success', 'danger', 'error', 'warning', 'info', 'light', 'dark']
+   */
+  const _setClassName = function (tooltip, className, type) {
+    className = className ?? tooltip.option.className;
+    // 'error' is an alias of type 'danger'
+    type = type === 'error' ? 'danger' : type ?? this.option.type;
+    if (type) {
+      className = className ? `${className} alert-${type}` : `alert-${type}`;
+    }
+    className = className ?? 'alert-light';
+    tooltip._$tooltip.className = 'cell-tooltip alert alert-dismissible fade';
+    tooltip._$tooltip.classList.add(...className.split(' '));
+  };
+
+  /**
    * 设置 关闭状态
    * @param {CellTooltip.prototype} tooltip
    * @param {Boolean} [closeable = true] 是否可关闭
@@ -70,12 +101,18 @@ const CellTooltip = function () {
    * 设置 Icon
    * @param {CellTooltip.prototype} tooltip
    * @param {String} [iconClass] className in HTML for font-awesome icon element
+   * @param {String} [type] Tooltip 类型，
+   * 可选值：['primary', 'secondary', 'success', 'danger', 'error', 'warning', 'info', 'light', 'dark']
    */
-  const _setIcon = function (tooltip, iconClass) {
+  const _setIcon = function (tooltip, iconClass, type) {
     iconClass = iconClass ?? tooltip.option.iconClass ?? '';
+    type = type ?? tooltip.option.type;
     let $tooltipIcon = tooltip.find('.cell-tooltip-icon');
-    if (!iconClass) {
+    if (!iconClass && !ICON_MAP[type]) {
       return $tooltipIcon?.classList.add('d-none');
+    }
+    if (ICON_MAP[type]) {
+      iconClass = iconClass ? `${iconClass} ${ICON_MAP[type]}` : ICON_MAP[type];
     }
     // 首次渲染 Icon
     if (!$tooltipIcon) {
@@ -86,7 +123,7 @@ const CellTooltip = function () {
     }
     // 修改渲染后的 Icon
     $tooltipIcon.classList.value = `svg-inline--fa cell-tooltip-icon ${iconClass}`;
-    const {prefix, iconName: icon} = FontAwesome.parse.icon(iconClass);
+    const { prefix, iconName: icon } = FontAwesome.parse.icon(iconClass);
     $tooltipIcon.dataset.prefix = prefix;
     $tooltipIcon.dataset.icon = icon;
   };
@@ -166,13 +203,7 @@ const CellTooltip = function () {
      * @since 1.0.0
      */
     _proto.setClassName = function (className) {
-      className = className ?? this.option.className;
-      if (this.typeClass) {
-        className = className ? `${className} ${this.typeClass}` : this.typeClass;
-      }
-      className = className ?? 'alert-light';
-      this._$tooltip.className = 'cell-tooltip alert alert-dismissible fade';
-      this._$tooltip.classList.add(...className.split(' '));
+      _setClassName(this, className);
       return this;
     };
 
@@ -228,19 +259,15 @@ const CellTooltip = function () {
      * @since 1.0.0
      */
     _proto.show = function (option = {}) {
-      // 'error' is an alias of type 'danger'
-      option.type = option.type === 'error' ? 'danger' : (option.type ?? this.option.type);
-      if (option.type) {
-        this.typeClass = `alert-${option.type}`;
-      }
-      // 更新內容
-      this.setIcon(option.iconClass)
-          .setContent(option.content)
-          .setContentClass(option.contentClass)
-          .setClassName(option.className);
-      _setDelayTime(this, option.delay);
+      // 更新内容
+      this.setContent(option.content)
+          .setContentClass(option.contentClass);
+      _setClassName(this, option.className, option.type);
       _setCloseBtn(this, option.closeable);
+      _setDelayTime(this, option.delay);
+      _setIcon(this, option.iconClass, option.type);
       _setPosition(this, option.position, option.offset);
+      // fade in
       this._$tooltip.classList.remove('d-none');
       setTimeout(() => {
         this._$tooltip.classList.add('show');
@@ -256,6 +283,7 @@ const CellTooltip = function () {
      * @since 1.0.0
      */
     _proto.hide = () => {
+      // fade out
       this._$tooltip.classList.remove('show');
       setTimeout(() => {
         this._$tooltip.classList.add('d-none');
@@ -265,4 +293,4 @@ const CellTooltip = function () {
     };
   }
   return CellTooltip;
-}();
+})();
