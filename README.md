@@ -7,12 +7,7 @@
 文档更新命令：
 
 ```bash
-npm install -g jsdoc
-npm install -g jsdoc-to-markdown
-```
-
-```bash
-jsdoc src -d docs/html && jsdoc2md src/*.js > docs/README.md
+npm run docs
 ```
 
 ## Usage

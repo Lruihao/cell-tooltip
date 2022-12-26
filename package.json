@@ -1,0 +1,33 @@
+{
+  "name": "cell-tooltip",
+  "version": "1.0.3",
+  "description": "基于 Bootstrap 5 + Font Awesome 6 的消息提示插件 (Base on [Bootstrap#Alerts](https://getbootstrap.com/docs/5.2/components/alerts/))",
+  "main": "src/cell-tooltip.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "docs": "jsdoc src -d docs/html && jsdoc2md src/*.js > docs/README.md"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Lruihao/cell-tooltip.git"
+  },
+  "keywords": [
+    "bootstrap",
+    "font-awesome",
+    "widget",
+    "tooltip",
+    "message"
+  ],
+  "author": "Lruihao (https://lruihao.cn)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Lruihao/cell-tooltip/issues"
+  },
+  "homepage": "https://github.com/Lruihao/cell-tooltip#readme",
+  "devDependencies": {
+    "jsdoc": "^4.0.0",
+    "jsdoc-to-markdown": "^8.0.0"
+  }
+}
