@@ -139,8 +139,8 @@ export class Tooltip {
       delay: normalizeDelay(options.delay),
     }
 
-    if (titleFromAttr) {
-      element.setAttribute('data-ct-original-title', titleFromAttr)
+    if (element.title) {
+      element.setAttribute('data-ct-original-title', element.title)
       element.removeAttribute('title')
     }
 
