@@ -186,15 +186,19 @@ export class Tooltip {
     const tip = this.getTipElement()
     tip.dataset.theme = this.config.theme
 
+    const alreadyShown = tip.classList.contains('show')
+
     if (!tip.isConnected) {
       this.config.container.appendChild(tip)
     }
 
     this.setContent(tip)
-    this.updatePosition()
 
-    tip.classList.add('show')
-    this.element.setAttribute('aria-describedby', tip.id)
+    if (!alreadyShown) {
+      this.updatePosition()
+      tip.classList.add('show')
+      this.element.setAttribute('aria-describedby', tip.id)
+    }
   }
 
   hide(): void {
@@ -401,7 +405,7 @@ export class Tooltip {
         break
       case 'left':
         top = targetRect.top + scrollY + (targetRect.height - tipRect.height) / 2
-        left = targetRect.left + scrollX - tipRect.width - offset
+        left = targetRect.left + scrollX - tipRect.width - 1.5 * offset
         break
       case 'right':
         top = targetRect.top + scrollY + (targetRect.height - tipRect.height) / 2
