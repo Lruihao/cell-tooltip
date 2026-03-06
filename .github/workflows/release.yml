@@ -22,11 +22,6 @@ jobs:
         with:
           node-version-file: .nvmrc
 
-      - name: Install dependencies and Build package
-        run: |
-          pnpm install --frozen-lockfile
-          pnpm build
-
       - name: Generate release notes
         run: |
           npx auto-changelog-plus --starting-version ${{ github.ref_name }}
