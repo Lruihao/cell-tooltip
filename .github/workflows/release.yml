@@ -13,19 +13,19 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0 # Fetch all history for generating release notes
 
       - name: Setup Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
           node-version-file: .nvmrc
 
       - name: Install dependencies and Build package
         run: |
-          yarn install --frozen-lockfile
-          yarn build
+          pnpm install --frozen-lockfile
+          pnpm build
 
       - name: Generate release notes
         run: |
@@ -38,8 +38,5 @@ jobs:
         with:
           draft: true
           body_path: CHANGELOG.md
-          files: |
-            dist/*.js
-            dist/*.js.map
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
