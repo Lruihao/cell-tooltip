@@ -1,0 +1,82 @@
+.cell-tooltip {
+  position: absolute;
+  z-index: 999;
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(0.97);
+  transition: opacity 0.12s ease, transform 0.12s ease;
+  filter: drop-shadow(0 10px 24px rgba(15, 23, 42, 0.2));
+
+  --tooltip-bg: #111827;
+  --tooltip-color: #f8fafc;
+  --tooltip-arrow-size: 8px;
+}
+
+.cell-tooltip[data-theme='light'] {
+  --tooltip-bg: #ffffff;
+  --tooltip-color: #0f172a;
+}
+
+.cell-tooltip[data-theme='auto'] {
+  --tooltip-bg: #ffffff;
+  --tooltip-color: #0f172a;
+}
+
+@media (prefers-color-scheme: dark) {
+  .cell-tooltip[data-theme='auto'] {
+    --tooltip-bg: #111827;
+    --tooltip-color: #f8fafc;
+  }
+}
+
+.cell-tooltip.show {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.cell-tooltip-inner {
+  max-width: 240px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.35;
+  color: var(--tooltip-color);
+  background: var(--tooltip-bg);
+  text-align: center;
+  word-wrap: break-word;
+}
+
+.cell-tooltip-arrow {
+  position: absolute;
+  width: 0;
+  height: 0;
+  transform: translate(-50%, -50%);
+}
+
+.cell-tooltip[data-placement='top'] .cell-tooltip-arrow {
+  bottom: calc(-1 * var(--tooltip-arrow-size));
+  border-left: var(--tooltip-arrow-size) solid transparent;
+  border-right: var(--tooltip-arrow-size) solid transparent;
+  border-top: var(--tooltip-arrow-size) solid var(--tooltip-bg);
+}
+
+.cell-tooltip[data-placement='bottom'] .cell-tooltip-arrow {
+  top: 0;
+  border-left: var(--tooltip-arrow-size) solid transparent;
+  border-right: var(--tooltip-arrow-size) solid transparent;
+  border-bottom: var(--tooltip-arrow-size) solid var(--tooltip-bg);
+}
+
+.cell-tooltip[data-placement='left'] .cell-tooltip-arrow {
+  right: calc(-1 * var(--tooltip-arrow-size));
+  border-top: var(--tooltip-arrow-size) solid transparent;
+  border-bottom: var(--tooltip-arrow-size) solid transparent;
+  border-left: var(--tooltip-arrow-size) solid var(--tooltip-bg);
+}
+
+.cell-tooltip[data-placement='right'] .cell-tooltip-arrow {
+  left: 0;
+  border-top: var(--tooltip-arrow-size) solid transparent;
+  border-bottom: var(--tooltip-arrow-size) solid transparent;
+  border-right: var(--tooltip-arrow-size) solid var(--tooltip-bg);
+}
