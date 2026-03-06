@@ -24,7 +24,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build --config vite.lib.config.ts && tsc -p tsconfig.lib.json",
-    "build:demo": "tsc && vite build --outDir dist-demo",
+    "build:demo": "tsc && vite build --base /cell-tooltip/ --outDir dist-demo",
     "preview": "vite preview --outDir dist-demo"
   },
   "devDependencies": {
