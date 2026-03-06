@@ -1,7 +1,25 @@
 {
   "name": "cell-tooltip",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "packageManager": "pnpm@10.30.3",
+  "description": "A lightweight, dependency-free tooltip library inspired by Bootstrap's interaction model.",
+  "author": "Lruihao (https://github.com/Lruihao)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Lruihao/cell-tooltip.git"
+  },
+  "keywords": [
+    "tooltip",
+    "cell-tooltip",
+    "typescript",
+    "javascript",
+    "ui",
+    "frontend",
+    "dom",
+    "lightweight",
+    "bootstrap-inspired"
+  ],
   "type": "module",
   "main": "./dist/cell-tooltip.umd.cjs",
   "module": "./dist/cell-tooltip.js",
