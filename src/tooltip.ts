@@ -277,7 +277,14 @@ export class Tooltip {
     }
 
     this.bind(window, 'resize', () => this.update())
-    this.bind(window, 'scroll', () => this.update())
+    this.bind(window, 'scroll', () => {
+      if (this.activeTrigger.hover || this.activeTrigger.focus) {
+        this.hide()
+        return
+      }
+
+      this.update()
+    })
   }
 
   private bind(target: EventTarget, eventName: string, handler: EventListener): void {
