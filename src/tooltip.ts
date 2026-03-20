@@ -8,7 +8,7 @@ export interface TooltipDelay {
 }
 
 export interface TooltipOptions {
-  title?: string | (() => string)
+  title?: string | ((element: HTMLElement) => string)
   placement?: TooltipPlacement
   trigger?: string
   theme?: TooltipTheme
@@ -104,7 +104,7 @@ function normalizeTheme(theme: string | undefined): TooltipTheme {
 export default class Tooltip {
   private element: HTMLElement
   private config: Required<Omit<TooltipOptions, 'title' | 'container'>> & {
-    title: string | (() => string)
+    title: string | ((element: HTMLElement) => string)
     container: HTMLElement
     delay: TooltipDelay
   }
@@ -123,7 +123,7 @@ export default class Tooltip {
   constructor(element: HTMLElement, options: TooltipOptions = {}) {
     this.element = element
 
-    const titleFromAttr = element.getAttribute('data-ct-title') ?? element.getAttribute('title') ?? ''
+    const titleFromAttr = (el: HTMLElement): string => el.dataset.ctTitle ?? el.dataset.ctOriginalTitle ?? el.getAttribute('title') ?? ''
     const placementFromAttr = (element.getAttribute('data-ct-placement') ?? undefined) as TooltipPlacement | undefined
     const triggerFromAttr = element.getAttribute('data-ct-trigger') ?? undefined
     const themeFromAttr = element.getAttribute('data-ct-theme') ?? undefined
@@ -225,6 +225,20 @@ export default class Tooltip {
     if (this.tip && this.tip.classList.contains('show')) {
       this.updatePosition()
     }
+  }
+
+  refresh(): void {
+    if (!this.tip || !this.tip.classList.contains('show')) {
+      return
+    }
+
+    this.setContent(this.tip)
+    this.updatePosition()
+  }
+
+  setTitle(title: string | ((element: HTMLElement) => string)): void {
+    this.config.title = title
+    this.refresh()
   }
 
   dispose(): void {
@@ -340,7 +354,7 @@ export default class Tooltip {
 
   private getTitle(): string {
     const { title } = this.config
-    return typeof title === 'function' ? title() : title
+    return typeof title === 'function' ? title(this.element) : title
   }
 
   private getTipElement(): HTMLElement {
