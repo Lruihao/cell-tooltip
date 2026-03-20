@@ -9,8 +9,15 @@ export default defineConfig({
     lib: {
       entry: 'src/index.ts',
       name: 'CellTooltip',
-      fileName: 'cell-tooltip',
-      formats: ['es', 'umd'],
+      fileName: (format: string) => {
+        const formatMap: Record<string, string> = {
+          'es': 'cell-tooltip.es.js',
+          'umd': 'cell-tooltip.umd.js',
+          'iife': 'cell-tooltip.iife.js'
+        }
+        return formatMap[format] || `cell-tooltip.${format}.js`
+      },
+      formats: ['es', 'umd', 'iife'],
     },
     rollupOptions: {
       output: {

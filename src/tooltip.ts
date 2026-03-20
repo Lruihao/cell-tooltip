@@ -101,7 +101,7 @@ function normalizeTheme(theme: string | undefined): TooltipTheme {
   return DEFAULT_OPTIONS.theme
 }
 
-export class Tooltip {
+export default class Tooltip {
   private element: HTMLElement
   private config: Required<Omit<TooltipOptions, 'title' | 'container'>> & {
     title: string | (() => string)

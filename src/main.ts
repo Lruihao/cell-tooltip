@@ -1,5 +1,5 @@
 import './style.css'
-import { Tooltip } from './tooltip'
+import CellTooltip from './tooltip'
 
 const app = document.querySelector<HTMLDivElement>('#app')
 
@@ -45,12 +45,12 @@ app.innerHTML = `
   </main>
 `
 
-Tooltip.initAll('.demo-btn[data-ct-title]')
+CellTooltip.initAll('.demo-btn[data-ct-title]')
 
 const manualButton = document.querySelector<HTMLElement>('#manualBtn')
 
 if (manualButton) {
-  const manualTooltip = Tooltip.getOrCreateInstance(manualButton, {
+  const manualTooltip = CellTooltip.getOrCreateInstance(manualButton, {
     title: '手动触发 tooltip',
     placement: 'bottom',
     trigger: 'manual',
