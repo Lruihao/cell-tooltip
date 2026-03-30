@@ -5,27 +5,25 @@
   opacity: 0;
   transform: scale(0.97);
   transition: opacity 0.12s ease, transform 0.12s ease;
-  filter: drop-shadow(0 10px 24px rgba(15, 23, 42, 0.2));
+  filter: drop-shadow(0 0 4px var(--tooltip-shadow-color, rgba(255, 255, 255, 0.18)));
 
   --tooltip-bg: #111827;
   --tooltip-color: #f8fafc;
   --tooltip-arrow-size: 8px;
 }
 
+.cell-tooltip[data-theme='auto'],
 .cell-tooltip[data-theme='light'] {
   --tooltip-bg: #ffffff;
   --tooltip-color: #0f172a;
-}
-
-.cell-tooltip[data-theme='auto'] {
-  --tooltip-bg: #ffffff;
-  --tooltip-color: #0f172a;
+  --tooltip-shadow-color: rgba(0, 0, 0, 0.18);
 }
 
 @media (prefers-color-scheme: dark) {
   .cell-tooltip[data-theme='auto'] {
     --tooltip-bg: #111827;
     --tooltip-color: #f8fafc;
+    --tooltip-shadow-color: rgba(255, 255, 255, 0.18);
   }
 }
 
