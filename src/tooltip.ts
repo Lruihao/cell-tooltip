@@ -17,6 +17,8 @@ export interface TooltipOptions {
   html?: boolean
   delay?: number | Partial<TooltipDelay>
   customClass?: string
+  showOnCreate?: boolean
+  interactive?: boolean
   onShow?: (tooltip: Tooltip) => void
   onHide?: (tooltip: Tooltip) => void
 }
@@ -36,6 +38,8 @@ const DEFAULT_OPTIONS: Required<Omit<TooltipOptions, 'title' | 'container' | 'on
   html: false,
   delay: 0,
   customClass: '',
+  showOnCreate: false,
+  interactive: false,
 }
 
 const DEFAULT_DELAY: TooltipDelay = {
@@ -56,36 +60,18 @@ function nextId(prefix: string): string {
 
 function normalizeDelay(delay: number | Partial<TooltipDelay> | undefined): TooltipDelay {
   if (typeof delay === 'number') {
-    return {
-      show: delay,
-      hide: delay,
-    }
+    return { show: delay, hide: delay }
   }
-
   return {
     show: delay?.show ?? DEFAULT_DELAY.show,
     hide: delay?.hide ?? DEFAULT_DELAY.hide,
   }
 }
 
+const VALID_TRIGGERS: Set<string> = new Set(['hover', 'focus', 'click', 'manual'])
+
 function normalizeTriggers(trigger: string): TooltipTrigger[] {
-  const list = trigger
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean)
-
-  if (list.length === 0) {
-    return ['hover', 'focus']
-  }
-
-  const valid: TooltipTrigger[] = []
-
-  for (const item of list) {
-    if (item === 'hover' || item === 'focus' || item === 'click' || item === 'manual') {
-      valid.push(item)
-    }
-  }
-
+  const valid = trigger.trim().split(/\s+/).filter((t) => VALID_TRIGGERS.has(t)) as TooltipTrigger[]
   return valid.length > 0 ? valid : ['hover', 'focus']
 }
 
@@ -134,6 +120,8 @@ export default class Tooltip {
     const offsetFromAttr = element.dataset.ctOffset ? Number(element.dataset.ctOffset) : undefined
     const delayFromAttr = element.dataset.ctDelay ? Number(element.dataset.ctDelay) : undefined
     const customClassFromAttr = element.getAttribute('data-ct-custom-class') ?? undefined
+    const showOnCreateFromAttr = element.hasAttribute('data-ct-show-on-create') ? true : undefined
+    const interactiveFromAttr = element.hasAttribute('data-ct-interactive') ? true : undefined
 
     this.config = {
       title: options.title ?? titleFromAttr,
@@ -145,6 +133,8 @@ export default class Tooltip {
       html: options.html ?? htmlFromAttr ?? DEFAULT_OPTIONS.html,
       delay: normalizeDelay(options.delay ?? delayFromAttr),
       customClass: options.customClass ?? customClassFromAttr ?? DEFAULT_OPTIONS.customClass,
+      showOnCreate: options.showOnCreate ?? showOnCreateFromAttr ?? DEFAULT_OPTIONS.showOnCreate,
+      interactive: options.interactive ?? interactiveFromAttr ?? DEFAULT_OPTIONS.interactive,
       onShow: options.onShow,
       onHide: options.onHide,
     }
@@ -156,6 +146,10 @@ export default class Tooltip {
 
     this.addListeners()
     INSTANCE_MAP.set(element, this)
+
+    if (this.config.showOnCreate) {
+      this.show()
+    }
   }
 
   static getInstance(element: HTMLElement): Tooltip | null {
@@ -429,6 +423,18 @@ export default class Tooltip {
     tip.setAttribute('role', 'tooltip')
     tip.dataset.theme = this.config.theme
     tip.innerHTML = '<div class="cell-tooltip-arrow"></div><div class="cell-tooltip-inner"></div>'
+
+    if (this.config.interactive) {
+      tip.style.pointerEvents = 'auto'
+      tip.addEventListener('mouseenter', () => {
+        this.clearTimer()
+        this.activeTrigger.hover = true
+      })
+      tip.addEventListener('mouseleave', () => {
+        this.activeTrigger.hover = false
+        this.leave()
+      })
+    }
 
     this.tip = tip
     this.arrow = tip.firstElementChild as HTMLElement
