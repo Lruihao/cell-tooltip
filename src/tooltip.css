@@ -4,6 +4,7 @@
   pointer-events: none;
   opacity: 0;
   will-change: opacity, transform;
+  contain: layout style;
   transition: opacity var(--tooltip-duration) ease, transform var(--tooltip-duration) ease;
   filter: drop-shadow(0 0 4px var(--tooltip-shadow-color, rgba(255, 255, 255, 0.18)));
 

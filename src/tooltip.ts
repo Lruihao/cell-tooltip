@@ -496,6 +496,7 @@ export default class Tooltip {
     tip.className = this.config.customClass ? `cell-tooltip ${this.config.customClass}` : 'cell-tooltip'
     tip.id = nextId('cell-tooltip')
     tip.setAttribute('role', 'tooltip')
+    tip.setAttribute('aria-live', 'polite')
     tip.dataset.theme = this.config.theme
     tip.innerHTML = this.config.template
 
