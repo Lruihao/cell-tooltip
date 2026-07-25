@@ -54,10 +54,6 @@ function nextId(prefix: string): string {
   return `${prefix}-${idSeed}`
 }
 
-function isHTMLElement(node: unknown): node is HTMLElement {
-  return node instanceof HTMLElement
-}
-
 function normalizeDelay(delay: number | Partial<TooltipDelay> | undefined): TooltipDelay {
   if (typeof delay === 'number') {
     return {
@@ -197,7 +193,7 @@ export default class Tooltip {
   }
 
   show(): void {
-    if (!this.isEnabled || !this.hasContent()) {
+    if (!this.isEnabled || !this.hasContent() || this.isDisabledElement()) {
       return
     }
 
@@ -320,6 +316,15 @@ export default class Tooltip {
           this.activeTrigger.click = !this.activeTrigger.click
           this.toggle()
         })
+
+        this.bind(document, 'click', ((event: MouseEvent) => {
+          const target = event.target as Node
+          if (this.activeTrigger.click && this.tip?.classList.contains('show') &&
+            !this.element.contains(target) && !this.tip.contains(target)) {
+            this.activeTrigger.click = false
+            this.hide()
+          }
+        }) as EventListener)
       }
     }
 
@@ -403,6 +408,11 @@ export default class Tooltip {
     return content.trim().length > 0
   }
 
+  private isDisabledElement(): boolean {
+    return this.element.hasAttribute('disabled') ||
+      this.element.getAttribute('aria-disabled') === 'true'
+  }
+
   private getTitle(): string {
     const { title } = this.config
     return typeof title === 'function' ? title(this.element) : title
@@ -420,22 +430,13 @@ export default class Tooltip {
     tip.dataset.theme = this.config.theme
     tip.innerHTML = '<div class="cell-tooltip-arrow"></div><div class="cell-tooltip-inner"></div>'
 
-    const arrow = tip.querySelector('.cell-tooltip-arrow')
-    if (!isHTMLElement(arrow)) {
-      throw new Error('Tooltip arrow element is missing')
-    }
-
     this.tip = tip
-    this.arrow = arrow
+    this.arrow = tip.firstElementChild as HTMLElement
     return tip
   }
 
   private setContent(tip: HTMLElement): void {
-    const inner = tip.querySelector('.cell-tooltip-inner')
-    if (!isHTMLElement(inner)) {
-      throw new Error('Tooltip inner element is missing')
-    }
-
+    const inner = tip.lastElementChild as HTMLElement
     const title = this.getTitle()
 
     if (this.config.html) {
