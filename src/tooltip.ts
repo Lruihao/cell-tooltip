@@ -190,6 +190,26 @@ export default class Tooltip {
     )
   }
 
+  static observe(selector = '[data-ct-title]', options?: TooltipOptions): MutationObserver {
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        for (const node of mutation.addedNodes) {
+          if (node instanceof HTMLElement) {
+            if (node.matches(selector)) {
+              Tooltip.getOrCreateInstance(node, options)
+            }
+            node.querySelectorAll<HTMLElement>(selector).forEach((el) => {
+              Tooltip.getOrCreateInstance(el, options)
+            })
+          }
+        }
+      }
+    })
+    observer.observe(document.body, { childList: true, subtree: true })
+    Tooltip.initAll(selector, options)
+    return observer
+  }
+
   enable(): void {
     this.isEnabled = true
   }
