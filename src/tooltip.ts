@@ -541,12 +541,10 @@ export default class Tooltip {
 
     const targetRect = this.element.getBoundingClientRect()
     const tipRect = tip.getBoundingClientRect()
+    const containerRect = this.config.container.getBoundingClientRect()
     const placement = this.resolvePlacement(targetRect, tipRect)
     tip.dataset.placement = placement
 
-    const scrollX = window.scrollX
-    const scrollY = window.scrollY
-    const boundaryRect = this.getBoundaryRect()
     const offset = this.config.offset
 
     let top = 0
@@ -554,27 +552,25 @@ export default class Tooltip {
 
     switch (placement) {
       case 'top':
-        top = targetRect.top + scrollY - tipRect.height - offset
-        left = targetRect.left + scrollX + (targetRect.width - tipRect.width) / 2
+        top = targetRect.top - containerRect.top - tipRect.height - offset
+        left = targetRect.left - containerRect.left + (targetRect.width - tipRect.width) / 2
         break
       case 'bottom':
-        top = targetRect.bottom + scrollY + offset
-        left = targetRect.left + scrollX + (targetRect.width - tipRect.width) / 2
+        top = targetRect.bottom - containerRect.top + offset
+        left = targetRect.left - containerRect.left + (targetRect.width - tipRect.width) / 2
         break
       case 'left':
-        top = targetRect.top + scrollY + (targetRect.height - tipRect.height) / 2
-        left = targetRect.left + scrollX - tipRect.width - offset
+        top = targetRect.top - containerRect.top + (targetRect.height - tipRect.height) / 2
+        left = targetRect.left - containerRect.left - tipRect.width - offset
         break
       case 'right':
-        top = targetRect.top + scrollY + (targetRect.height - tipRect.height) / 2
-        left = targetRect.right + scrollX + offset
+        top = targetRect.top - containerRect.top + (targetRect.height - tipRect.height) / 2
+        left = targetRect.right - containerRect.left + offset
         break
     }
 
-    const boundaryTop = boundaryRect.top + scrollY
-    const boundaryLeft = boundaryRect.left + scrollX
-    const clampedTop = clamp(top, boundaryTop + 4, boundaryTop + boundaryRect.height - tipRect.height - 4)
-    const clampedLeft = clamp(left, boundaryLeft + 4, boundaryLeft + boundaryRect.width - tipRect.width - 4)
+    const clampedTop = clamp(top, 4, containerRect.height - tipRect.height - 4)
+    const clampedLeft = clamp(left, 4, containerRect.width - tipRect.width - 4)
 
     tip.style.top = `${Math.round(clampedTop)}px`
     tip.style.left = `${Math.round(clampedLeft)}px`
@@ -634,8 +630,9 @@ export default class Tooltip {
       return
     }
 
-    const targetCenterX = targetRect.left + window.scrollX + targetRect.width / 2
-    const targetCenterY = targetRect.top + window.scrollY + targetRect.height / 2
+    const containerRect = this.config.container.getBoundingClientRect()
+    const targetCenterX = targetRect.left - containerRect.left + targetRect.width / 2
+    const targetCenterY = targetRect.top - containerRect.top + targetRect.height / 2
 
     if (placement === 'top' || placement === 'bottom') {
       const rawX = targetCenterX - tooltipRect.left
