@@ -4,12 +4,13 @@
   pointer-events: none;
   opacity: 0;
   will-change: opacity, transform;
-  transition: opacity 0.12s ease, transform 0.12s ease;
+  transition: opacity var(--tooltip-duration) ease, transform var(--tooltip-duration) ease;
   filter: drop-shadow(0 0 4px var(--tooltip-shadow-color, rgba(255, 255, 255, 0.18)));
 
   --tooltip-bg: #111827;
   --tooltip-color: #f8fafc;
   --tooltip-arrow-size: 8px;
+  --tooltip-duration: 0.12s;
 }
 
 .cell-tooltip[data-theme='auto'],

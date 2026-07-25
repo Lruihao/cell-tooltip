@@ -12,6 +12,7 @@ app.innerHTML = `
     <h1>Cell Tooltip</h1>
     <p class="subtitle">参考 Bootstrap tooltip.js 的交互模型，做了轻量化实现。</p>
 
+    <h2>基础触发方式</h2>
     <section class="panel">
       <button
         class="demo-btn"
@@ -43,16 +44,56 @@ app.innerHTML = `
       <button id="manualBtn" class="demo-btn">Manual Toggle</button>
     </section>
 
+    <h2>主题与动画</h2>
     <section class="panel">
       <button
         class="demo-btn"
-        data-ct-title="自定义 class 的 tooltip"
+        data-ct-title="深色主题（默认）"
         data-ct-placement="bottom"
-        data-ct-custom-class="my-tooltip"
+        data-ct-theme="dark"
       >
-        Custom Class
+        Dark Theme
       </button>
 
+      <button
+        class="demo-btn"
+        data-ct-title="浅色主题"
+        data-ct-placement="bottom"
+        data-ct-theme="light"
+      >
+        Light Theme
+      </button>
+
+      <button
+        class="demo-btn"
+        data-ct-title="淡入动画"
+        data-ct-placement="bottom"
+        data-ct-animation="fade"
+      >
+        Fade Animation
+      </button>
+
+      <button
+        class="demo-btn"
+        data-ct-title="滑出动画"
+        data-ct-placement="bottom"
+        data-ct-animation="shift-away"
+      >
+        Shift-Away
+      </button>
+
+      <button
+        class="demo-btn"
+        data-ct-title="无动画"
+        data-ct-placement="bottom"
+        data-ct-animation="none"
+      >
+        No Animation
+      </button>
+    </section>
+
+    <h2>高级功能</h2>
+    <section class="panel">
       <button
         class="demo-btn"
         data-ct-title="<strong>HTML</strong> 内容"
@@ -80,12 +121,40 @@ app.innerHTML = `
         Delayed Show
       </button>
 
+      <button
+        class="demo-btn my-tooltip-class"
+        data-ct-title="自定义 class 的 tooltip"
+        data-ct-placement="bottom"
+        data-ct-custom-class="my-tooltip"
+      >
+        Custom Class
+      </button>
+
+      <button id="interactiveBtn" class="demo-btn">
+        Interactive (hover me)
+      </button>
+
       <button id="callbackBtn" class="demo-btn">
-        Callbacks (check console)
+        Callbacks (console)
       </button>
 
       <button id="escapeBtn" class="demo-btn">
-        Press Escape to close
+        Escape to close
+      </button>
+    </section>
+
+    <h2>生命周期</h2>
+    <section class="panel">
+      <button id="showOnCreateBtn" class="demo-btn">
+        showOnCreate
+      </button>
+
+      <button id="disposeBtn" class="demo-btn">
+        Dispose Demo
+      </button>
+
+      <button id="getInstanceBtn" class="demo-btn">
+        getInstance
       </button>
     </section>
   </main>
@@ -93,17 +162,27 @@ app.innerHTML = `
 
 CellTooltip.initAll('.demo-btn[data-ct-title]')
 
+// Manual toggle
 const manualButton = document.querySelector<HTMLElement>('#manualBtn')
-
 if (manualButton) {
   const manualTooltip = CellTooltip.getOrCreateInstance(manualButton, {
     title: '手动触发 tooltip',
     placement: 'bottom',
     trigger: 'manual',
   })
-
   manualButton.addEventListener('click', () => {
     manualTooltip.toggle()
+  })
+}
+
+// Interactive tooltip
+const interactiveBtn = document.querySelector<HTMLElement>('#interactiveBtn')
+if (interactiveBtn) {
+  CellTooltip.getOrCreateInstance(interactiveBtn, {
+    title: '可以 hover 到这里来 <a href="#">点击链接</a>',
+    placement: 'bottom',
+    html: true,
+    interactive: true,
   })
 }
 
@@ -131,4 +210,40 @@ if (escapeBtn) {
     placement: 'bottom',
     trigger: 'click',
   })
+}
+
+// showOnCreate demo
+const showOnCreateBtn = document.querySelector<HTMLElement>('#showOnCreateBtn')
+if (showOnCreateBtn) {
+  CellTooltip.getOrCreateInstance(showOnCreateBtn, {
+    title: '创建时自动显示',
+    placement: 'bottom',
+    trigger: 'manual',
+    showOnCreate: true,
+  })
+}
+
+// Dispose demo
+const disposeBtn = document.querySelector<HTMLElement>('#disposeBtn')
+if (disposeBtn) {
+  const disposeTooltip = CellTooltip.getOrCreateInstance(disposeBtn, {
+    title: '点击按钮销毁此 tooltip',
+    placement: 'bottom',
+    trigger: 'hover',
+  })
+  disposeBtn.addEventListener('click', () => {
+    disposeTooltip.dispose()
+    disposeBtn.textContent = 'Disposed!'
+    disposeBtn.disabled = true
+  })
+}
+
+// getInstance demo
+const getInstanceBtn = document.querySelector<HTMLElement>('#getInstanceBtn')
+if (getInstanceBtn) {
+  const instance = CellTooltip.getInstance(getInstanceBtn)
+  if (instance) {
+    console.log('getInstance result:', instance)
+    console.log('getContent():', instance.getContent())
+  }
 }
