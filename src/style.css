@@ -74,3 +74,8 @@ h1 {
   outline-offset: 2px;
 }
 
+.my-tooltip .cell-tooltip-inner {
+  border: 2px solid #3b82f6;
+  font-weight: 600;
+}
+

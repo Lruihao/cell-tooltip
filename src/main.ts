@@ -42,6 +42,52 @@ app.innerHTML = `
 
       <button id="manualBtn" class="demo-btn">Manual Toggle</button>
     </section>
+
+    <section class="panel">
+      <button
+        class="demo-btn"
+        data-ct-title="自定义 class 的 tooltip"
+        data-ct-placement="bottom"
+        data-ct-custom-class="my-tooltip"
+      >
+        Custom Class
+      </button>
+
+      <button
+        class="demo-btn"
+        data-ct-title="<strong>HTML</strong> 内容"
+        data-ct-html="true"
+        data-ct-placement="bottom"
+      >
+        HTML Content
+      </button>
+
+      <button
+        class="demo-btn"
+        data-ct-title="自定义偏移量 (20px)"
+        data-ct-placement="bottom"
+        data-ct-offset="20"
+      >
+        Custom Offset
+      </button>
+
+      <button
+        class="demo-btn"
+        data-ct-title="延迟显示 (500ms)"
+        data-ct-placement="bottom"
+        data-ct-delay="500"
+      >
+        Delayed Show
+      </button>
+
+      <button id="callbackBtn" class="demo-btn">
+        Callbacks (check console)
+      </button>
+
+      <button id="escapeBtn" class="demo-btn">
+        Press Escape to close
+      </button>
+    </section>
   </main>
 `
 
@@ -58,5 +104,31 @@ if (manualButton) {
 
   manualButton.addEventListener('click', () => {
     manualTooltip.toggle()
+  })
+}
+
+// Callback demo
+const callbackBtn = document.querySelector<HTMLElement>('#callbackBtn')
+if (callbackBtn) {
+  CellTooltip.getOrCreateInstance(callbackBtn, {
+    title: '查看控制台输出',
+    placement: 'bottom',
+    trigger: 'click',
+    onShow: (tooltip) => {
+      console.log('onShow fired:', tooltip)
+    },
+    onHide: (tooltip) => {
+      console.log('onHide fired:', tooltip)
+    },
+  })
+}
+
+// Escape key demo
+const escapeBtn = document.querySelector<HTMLElement>('#escapeBtn')
+if (escapeBtn) {
+  CellTooltip.getOrCreateInstance(escapeBtn, {
+    title: '按 Escape 键关闭',
+    placement: 'bottom',
+    trigger: 'click',
   })
 }

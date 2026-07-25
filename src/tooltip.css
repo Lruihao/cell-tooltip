@@ -41,7 +41,7 @@
   color: var(--tooltip-color);
   background: var(--tooltip-bg);
   text-align: center;
-  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .cell-tooltip-arrow {
@@ -49,32 +49,25 @@
   width: 0;
   height: 0;
   transform: translate(-50%, -50%);
+  border: var(--tooltip-arrow-size) solid transparent;
 }
 
 .cell-tooltip[data-placement='top'] .cell-tooltip-arrow {
   bottom: calc(-1 * var(--tooltip-arrow-size));
-  border-left: var(--tooltip-arrow-size) solid transparent;
-  border-right: var(--tooltip-arrow-size) solid transparent;
-  border-top: var(--tooltip-arrow-size) solid var(--tooltip-bg);
+  border-top-color: var(--tooltip-bg);
 }
 
 .cell-tooltip[data-placement='bottom'] .cell-tooltip-arrow {
   top: 0;
-  border-left: var(--tooltip-arrow-size) solid transparent;
-  border-right: var(--tooltip-arrow-size) solid transparent;
-  border-bottom: var(--tooltip-arrow-size) solid var(--tooltip-bg);
+  border-bottom-color: var(--tooltip-bg);
 }
 
 .cell-tooltip[data-placement='left'] .cell-tooltip-arrow {
   right: calc(-1 * var(--tooltip-arrow-size));
-  border-top: var(--tooltip-arrow-size) solid transparent;
-  border-bottom: var(--tooltip-arrow-size) solid transparent;
-  border-left: var(--tooltip-arrow-size) solid var(--tooltip-bg);
+  border-left-color: var(--tooltip-bg);
 }
 
 .cell-tooltip[data-placement='right'] .cell-tooltip-arrow {
   left: 0;
-  border-top: var(--tooltip-arrow-size) solid transparent;
-  border-bottom: var(--tooltip-arrow-size) solid transparent;
-  border-right: var(--tooltip-arrow-size) solid var(--tooltip-bg);
+  border-right-color: var(--tooltip-bg);
 }

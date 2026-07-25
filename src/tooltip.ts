@@ -16,6 +16,9 @@ export interface TooltipOptions {
   offset?: number
   html?: boolean
   delay?: number | Partial<TooltipDelay>
+  customClass?: string
+  onShow?: (tooltip: Tooltip) => void
+  onHide?: (tooltip: Tooltip) => void
 }
 
 type ActiveTriggerState = {
@@ -24,7 +27,7 @@ type ActiveTriggerState = {
   focus: boolean
 }
 
-const DEFAULT_OPTIONS: Required<Omit<TooltipOptions, 'title' | 'container'>> & { title: '' } = {
+const DEFAULT_OPTIONS: Required<Omit<TooltipOptions, 'title' | 'container' | 'onShow' | 'onHide'>> & { title: '' } = {
   title: '',
   placement: 'top',
   trigger: 'hover focus',
@@ -32,6 +35,7 @@ const DEFAULT_OPTIONS: Required<Omit<TooltipOptions, 'title' | 'container'>> & {
   offset: 8,
   html: false,
   delay: 0,
+  customClass: '',
 }
 
 const DEFAULT_DELAY: TooltipDelay = {
@@ -103,10 +107,12 @@ function normalizeTheme(theme: string | undefined): TooltipTheme {
 
 export default class Tooltip {
   private element: HTMLElement
-  private config: Required<Omit<TooltipOptions, 'title' | 'container'>> & {
+  private config: Required<Omit<TooltipOptions, 'title' | 'container' | 'onShow' | 'onHide'>> & {
     title: string | ((element: HTMLElement) => string)
     container: HTMLElement
     delay: TooltipDelay
+    onShow?: (tooltip: Tooltip) => void
+    onHide?: (tooltip: Tooltip) => void
   }
   private tip: HTMLElement | null = null
   private arrow: HTMLElement | null = null
@@ -119,6 +125,7 @@ export default class Tooltip {
     focus: false,
   }
   private listeners: Array<() => void> = []
+  private rafId: number | null = null
 
   constructor(element: HTMLElement, options: TooltipOptions = {}) {
     this.element = element
@@ -127,6 +134,10 @@ export default class Tooltip {
     const placementFromAttr = (element.getAttribute('data-ct-placement') ?? undefined) as TooltipPlacement | undefined
     const triggerFromAttr = element.getAttribute('data-ct-trigger') ?? undefined
     const themeFromAttr = element.getAttribute('data-ct-theme') ?? undefined
+    const htmlFromAttr = element.getAttribute('data-ct-html') === 'true' ? true : undefined
+    const offsetFromAttr = element.dataset.ctOffset ? Number(element.dataset.ctOffset) : undefined
+    const delayFromAttr = element.dataset.ctDelay ? Number(element.dataset.ctDelay) : undefined
+    const customClassFromAttr = element.getAttribute('data-ct-custom-class') ?? undefined
 
     this.config = {
       title: options.title ?? titleFromAttr,
@@ -134,9 +145,12 @@ export default class Tooltip {
       trigger: options.trigger ?? triggerFromAttr ?? DEFAULT_OPTIONS.trigger,
       theme: normalizeTheme(options.theme ?? themeFromAttr ?? DEFAULT_OPTIONS.theme),
       container: options.container ?? document.body,
-      offset: options.offset ?? DEFAULT_OPTIONS.offset,
-      html: options.html ?? DEFAULT_OPTIONS.html,
-      delay: normalizeDelay(options.delay),
+      offset: options.offset ?? offsetFromAttr ?? DEFAULT_OPTIONS.offset,
+      html: options.html ?? htmlFromAttr ?? DEFAULT_OPTIONS.html,
+      delay: normalizeDelay(options.delay ?? delayFromAttr),
+      customClass: options.customClass ?? customClassFromAttr ?? DEFAULT_OPTIONS.customClass,
+      onShow: options.onShow,
+      onHide: options.onHide,
     }
 
     if (element.title) {
@@ -146,6 +160,10 @@ export default class Tooltip {
 
     this.addListeners()
     INSTANCE_MAP.set(element, this)
+  }
+
+  static getInstance(element: HTMLElement): Tooltip | null {
+    return INSTANCE_MAP.get(element) ?? null
   }
 
   static getOrCreateInstance(element: HTMLElement, options?: TooltipOptions): Tooltip {
@@ -198,6 +216,7 @@ export default class Tooltip {
       this.updatePosition()
       tip.classList.add('show')
       this.element.setAttribute('aria-describedby', tip.id)
+      this.config.onShow?.(this)
     }
   }
 
@@ -213,6 +232,7 @@ export default class Tooltip {
     this.activeTrigger.hover = false
     this.hoverState = null
     this.element.removeAttribute('aria-describedby')
+    this.config.onHide?.(this)
 
     window.setTimeout(() => {
       if (!tip.classList.contains('show')) {
@@ -243,9 +263,22 @@ export default class Tooltip {
 
   dispose(): void {
     this.clearTimer()
+    if (this.rafId !== null) {
+      cancelAnimationFrame(this.rafId)
+      this.rafId = null
+    }
     this.listeners.forEach((off) => off())
     this.listeners = []
-    this.hide()
+    if (this.tip) {
+      this.tip.remove()
+      this.tip = null
+      this.arrow = null
+    }
+    this.element.removeAttribute('aria-describedby')
+    this.hoverState = null
+    this.activeTrigger.click = false
+    this.activeTrigger.focus = false
+    this.activeTrigger.hover = false
     INSTANCE_MAP.delete(this.element)
   }
 
@@ -290,15 +323,33 @@ export default class Tooltip {
       }
     }
 
-    this.bind(window, 'resize', () => this.update())
-    this.bind(window, 'scroll', () => {
-      if (this.activeTrigger.hover || this.activeTrigger.focus) {
-        this.hide()
+    const throttledUpdate = () => {
+      if (this.rafId !== null) {
         return
       }
+      this.rafId = requestAnimationFrame(() => {
+        this.rafId = null
+        if (this.tip && this.tip.classList.contains('show')) {
+          const rect = this.element.getBoundingClientRect()
+          const isVisible = rect.bottom > 0 && rect.top < window.innerHeight &&
+            rect.right > 0 && rect.left < window.innerWidth
+          if (isVisible) {
+            this.updatePosition()
+          } else {
+            this.hide()
+          }
+        }
+      })
+    }
 
-      this.update()
-    })
+    this.bind(window, 'resize', throttledUpdate)
+    this.bind(window, 'scroll', throttledUpdate)
+
+    this.bind(document, 'keydown', ((event: KeyboardEvent) => {
+      if (event.key === 'Escape' && this.tip?.classList.contains('show')) {
+        this.hide()
+      }
+    }) as EventListener)
   }
 
   private bind(target: EventTarget, eventName: string, handler: EventListener): void {
@@ -363,7 +414,7 @@ export default class Tooltip {
     }
 
     const tip = document.createElement('div')
-    tip.className = 'cell-tooltip'
+    tip.className = this.config.customClass ? `cell-tooltip ${this.config.customClass}` : 'cell-tooltip'
     tip.id = nextId('cell-tooltip')
     tip.setAttribute('role', 'tooltip')
     tip.dataset.theme = this.config.theme
@@ -426,7 +477,7 @@ export default class Tooltip {
         break
       case 'left':
         top = targetRect.top + scrollY + (targetRect.height - tipRect.height) / 2
-        left = targetRect.left + scrollX - tipRect.width - 1.5 * offset
+        left = targetRect.left + scrollX - tipRect.width - offset
         break
       case 'right':
         top = targetRect.top + scrollY + (targetRect.height - tipRect.height) / 2
