@@ -3,7 +3,6 @@
   z-index: 999;
   pointer-events: none;
   opacity: 0;
-  transform: scale(0.97);
   will-change: opacity, transform;
   transition: opacity 0.12s ease, transform 0.12s ease;
   filter: drop-shadow(0 0 4px var(--tooltip-shadow-color, rgba(255, 255, 255, 0.18)));
@@ -28,9 +27,32 @@
   }
 }
 
-.cell-tooltip.show {
+/* Animation: scale (default) */
+.cell-tooltip[data-animation='scale'] {
+  transform: scale(0.97);
+}
+.cell-tooltip[data-animation='scale'].show {
   opacity: 1;
   transform: scale(1);
+}
+
+/* Animation: fade */
+.cell-tooltip[data-animation='fade'].show {
+  opacity: 1;
+}
+
+/* Animation: shift-away */
+.cell-tooltip[data-animation='shift-away'] {
+  transform: translateY(4px);
+}
+.cell-tooltip[data-animation='shift-away'].show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Animation: none */
+.cell-tooltip[data-animation='none'].show {
+  opacity: 1;
 }
 
 .cell-tooltip-inner {

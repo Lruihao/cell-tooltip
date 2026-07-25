@@ -1,6 +1,7 @@
 export type TooltipPlacement = 'top' | 'bottom' | 'left' | 'right' | 'auto'
 export type TooltipTrigger = 'hover' | 'focus' | 'click' | 'manual'
 export type TooltipTheme = 'light' | 'dark' | 'auto'
+export type TooltipAnimation = 'fade' | 'scale' | 'shift-away' | 'none'
 
 export interface TooltipDelay {
   show: number
@@ -17,8 +18,10 @@ export interface TooltipOptions {
   html?: boolean
   delay?: number | Partial<TooltipDelay>
   customClass?: string
+  animation?: TooltipAnimation
   showOnCreate?: boolean
   interactive?: boolean
+  autoDispose?: boolean
   onShow?: (tooltip: Tooltip) => void
   onHide?: (tooltip: Tooltip) => void
 }
@@ -38,8 +41,10 @@ const DEFAULT_OPTIONS: Required<Omit<TooltipOptions, 'title' | 'container' | 'on
   html: false,
   delay: 0,
   customClass: '',
+  animation: 'scale',
   showOnCreate: false,
   interactive: false,
+  autoDispose: true,
 }
 
 const DEFAULT_DELAY: TooltipDelay = {
@@ -108,6 +113,7 @@ export default class Tooltip {
   }
   private listeners: Array<() => void> = []
   private rafId: number | null = null
+  private observer: MutationObserver | null = null
 
   constructor(element: HTMLElement, options: TooltipOptions = {}) {
     this.element = element
@@ -122,6 +128,7 @@ export default class Tooltip {
     const customClassFromAttr = element.getAttribute('data-ct-custom-class') ?? undefined
     const showOnCreateFromAttr = element.hasAttribute('data-ct-show-on-create') ? true : undefined
     const interactiveFromAttr = element.hasAttribute('data-ct-interactive') ? true : undefined
+    const animationFromAttr = element.getAttribute('data-ct-animation') as TooltipAnimation | undefined
 
     this.config = {
       title: options.title ?? titleFromAttr,
@@ -133,8 +140,10 @@ export default class Tooltip {
       html: options.html ?? htmlFromAttr ?? DEFAULT_OPTIONS.html,
       delay: normalizeDelay(options.delay ?? delayFromAttr),
       customClass: options.customClass ?? customClassFromAttr ?? DEFAULT_OPTIONS.customClass,
+      animation: options.animation ?? animationFromAttr ?? DEFAULT_OPTIONS.animation,
       showOnCreate: options.showOnCreate ?? showOnCreateFromAttr ?? DEFAULT_OPTIONS.showOnCreate,
       interactive: options.interactive ?? interactiveFromAttr ?? DEFAULT_OPTIONS.interactive,
+      autoDispose: options.autoDispose ?? DEFAULT_OPTIONS.autoDispose,
       onShow: options.onShow,
       onHide: options.onHide,
     }
@@ -146,6 +155,15 @@ export default class Tooltip {
 
     this.addListeners()
     INSTANCE_MAP.set(element, this)
+
+    if (this.config.autoDispose) {
+      this.observer = new MutationObserver(() => {
+        if (!element.isConnected) {
+          this.dispose()
+        }
+      })
+      this.observer.observe(element.parentNode || document.body, { childList: true })
+    }
 
     if (this.config.showOnCreate) {
       this.show()
@@ -193,6 +211,7 @@ export default class Tooltip {
 
     const tip = this.getTipElement()
     tip.dataset.theme = this.config.theme
+    tip.dataset.animation = this.config.animation
 
     const alreadyShown = tip.classList.contains('show')
 
@@ -256,6 +275,10 @@ export default class Tooltip {
     if (this.rafId !== null) {
       cancelAnimationFrame(this.rafId)
       this.rafId = null
+    }
+    if (this.observer) {
+      this.observer.disconnect()
+      this.observer = null
     }
     this.listeners.forEach((off) => off())
     this.listeners = []
