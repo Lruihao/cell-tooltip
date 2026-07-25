@@ -101,6 +101,8 @@ interface TooltipOptions {
   delay?: number | { show?: number; hide?: number }
   customClass?: string
   animation?: TooltipAnimation
+  template?: string
+  boundary?: HTMLElement | 'viewport'
   showOnCreate?: boolean
   interactive?: boolean
   autoDispose?: boolean
@@ -119,6 +121,8 @@ interface TooltipOptions {
 - `delay`：显示/隐藏延迟（毫秒）
 - `customClass`：自定义 CSS 类名
 - `animation`：动画类型；`scale`（默认）/ `fade` / `shift-away` / `none`
+- `template`：自定义 tooltip HTML 结构（需包含 `.cell-tooltip-arrow` 和 `.cell-tooltip-inner`）
+- `boundary`：边界元素，auto placement 时参考，默认 `'viewport'`
 - `showOnCreate`：创建时立即显示
 - `interactive`：允许鼠标悬停在 tooltip 上（适用于链接等交互内容）
 - `autoDispose`：触发元素从 DOM 移除时自动清理，默认 `true`
@@ -178,6 +182,7 @@ tooltip.dispose()
 Tooltip.getInstance(element)          // 获取已有实例或 null
 Tooltip.getOrCreateInstance(element)   // 获取或创建实例
 Tooltip.initAll('.selector')          // 批量初始化
+Tooltip.observe('.selector')          // 观察 DOM 变化自动初始化（返回 MutationObserver）
 ```
 
 ## CSS 自定义属性
