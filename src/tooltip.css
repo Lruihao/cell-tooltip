@@ -95,3 +95,9 @@
   left: 0;
   border-right-color: var(--tooltip-bg);
 }
+
+@media print {
+  .cell-tooltip {
+    display: none !important;
+  }
+}

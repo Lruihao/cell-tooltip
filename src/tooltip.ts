@@ -20,6 +20,7 @@ export interface TooltipOptions {
   delay?: number | Partial<TooltipDelay>
   customClass?: string
   animation?: TooltipAnimation
+  template?: string
   showOnCreate?: boolean
   interactive?: boolean
   autoDispose?: boolean
@@ -33,6 +34,8 @@ type ActiveTriggerState = {
   focus: boolean
 }
 
+const DEFAULT_TEMPLATE = '<div class="cell-tooltip-arrow"></div><div class="cell-tooltip-inner"></div>'
+
 const DEFAULT_OPTIONS: Required<Omit<TooltipOptions, 'title' | 'container' | 'boundary' | 'onShow' | 'onHide'>> & { title: '' } = {
   title: '',
   placement: 'top',
@@ -43,6 +46,7 @@ const DEFAULT_OPTIONS: Required<Omit<TooltipOptions, 'title' | 'container' | 'bo
   delay: 0,
   customClass: '',
   animation: 'scale',
+  template: DEFAULT_TEMPLATE,
   showOnCreate: false,
   interactive: false,
   autoDispose: true,
@@ -142,6 +146,7 @@ export default class Tooltip {
       delay: normalizeDelay(options.delay ?? delayFromAttr),
       customClass: options.customClass ?? customClassFromAttr ?? DEFAULT_OPTIONS.customClass,
       animation: options.animation ?? animationFromAttr ?? DEFAULT_OPTIONS.animation,
+      template: options.template ?? DEFAULT_OPTIONS.template,
       showOnCreate: options.showOnCreate ?? showOnCreateFromAttr ?? DEFAULT_OPTIONS.showOnCreate,
       interactive: options.interactive ?? interactiveFromAttr ?? DEFAULT_OPTIONS.interactive,
       autoDispose: options.autoDispose ?? DEFAULT_OPTIONS.autoDispose,
@@ -322,6 +327,20 @@ export default class Tooltip {
           this.activeTrigger.hover = false
           this.leave()
         })
+
+        this.bind(this.element, 'touchstart', () => {
+          this.activeTrigger.hover = true
+          this.enter()
+        }, { passive: true } as AddEventListenerOptions)
+
+        this.bind(document, 'touchstart', ((event: TouchEvent) => {
+          const target = event.target as Node
+          if (this.activeTrigger.hover && this.tip?.classList.contains('show') &&
+            !this.element.contains(target) && !this.tip.contains(target)) {
+            this.activeTrigger.hover = false
+            this.leave()
+          }
+        }) as EventListener, { passive: true } as AddEventListenerOptions)
       }
 
       if (trigger === 'focus') {
@@ -384,9 +403,9 @@ export default class Tooltip {
     }) as EventListener)
   }
 
-  private bind(target: EventTarget, eventName: string, handler: EventListener): void {
-    target.addEventListener(eventName, handler)
-    this.listeners.push(() => target.removeEventListener(eventName, handler))
+  private bind(target: EventTarget, eventName: string, handler: EventListener, options?: AddEventListenerOptions): void {
+    target.addEventListener(eventName, handler, options)
+    this.listeners.push(() => target.removeEventListener(eventName, handler, options))
   }
 
   private clearTimer(): void {
@@ -455,7 +474,7 @@ export default class Tooltip {
     tip.id = nextId('cell-tooltip')
     tip.setAttribute('role', 'tooltip')
     tip.dataset.theme = this.config.theme
-    tip.innerHTML = '<div class="cell-tooltip-arrow"></div><div class="cell-tooltip-inner"></div>'
+    tip.innerHTML = this.config.template
 
     if (this.config.interactive) {
       tip.style.pointerEvents = 'auto'
@@ -470,12 +489,14 @@ export default class Tooltip {
     }
 
     this.tip = tip
-    this.arrow = tip.firstElementChild as HTMLElement
+    this.arrow = tip.querySelector('.cell-tooltip-arrow') as HTMLElement
     return tip
   }
 
   private setContent(tip: HTMLElement): void {
-    const inner = tip.lastElementChild as HTMLElement
+    const inner = tip.querySelector('.cell-tooltip-inner') as HTMLElement
+    if (!inner) return
+
     const title = this.getTitle()
 
     if (this.config.html) {
