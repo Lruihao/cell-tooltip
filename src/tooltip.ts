@@ -14,6 +14,7 @@ export interface TooltipOptions {
   trigger?: string
   theme?: TooltipTheme
   container?: HTMLElement
+  boundary?: HTMLElement | 'viewport'
   offset?: number
   html?: boolean
   delay?: number | Partial<TooltipDelay>
@@ -32,7 +33,7 @@ type ActiveTriggerState = {
   focus: boolean
 }
 
-const DEFAULT_OPTIONS: Required<Omit<TooltipOptions, 'title' | 'container' | 'onShow' | 'onHide'>> & { title: '' } = {
+const DEFAULT_OPTIONS: Required<Omit<TooltipOptions, 'title' | 'container' | 'boundary' | 'onShow' | 'onHide'>> & { title: '' } = {
   title: '',
   placement: 'top',
   trigger: 'hover focus',
@@ -84,19 +85,18 @@ function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max)
 }
 
-function normalizeTheme(theme: string | undefined): TooltipTheme {
-  if (theme === 'light' || theme === 'dark' || theme === 'auto') {
-    return theme
-  }
+const VALID_THEMES: Set<string> = new Set(['light', 'dark', 'auto'])
 
-  return DEFAULT_OPTIONS.theme
+function normalizeTheme(theme: string | undefined): TooltipTheme {
+  return theme && VALID_THEMES.has(theme) ? theme as TooltipTheme : DEFAULT_OPTIONS.theme
 }
 
 export default class Tooltip {
   private element: HTMLElement
-  private config: Required<Omit<TooltipOptions, 'title' | 'container' | 'onShow' | 'onHide'>> & {
+  private config: Required<Omit<TooltipOptions, 'title' | 'container' | 'boundary' | 'onShow' | 'onHide'>> & {
     title: string | ((element: HTMLElement) => string)
     container: HTMLElement
+    boundary: HTMLElement | 'viewport'
     delay: TooltipDelay
     onShow?: (tooltip: Tooltip) => void
     onHide?: (tooltip: Tooltip) => void
@@ -136,6 +136,7 @@ export default class Tooltip {
       trigger: options.trigger ?? triggerFromAttr ?? DEFAULT_OPTIONS.trigger,
       theme: normalizeTheme(options.theme ?? themeFromAttr ?? DEFAULT_OPTIONS.theme),
       container: options.container ?? document.body,
+      boundary: options.boundary ?? 'viewport',
       offset: options.offset ?? offsetFromAttr ?? DEFAULT_OPTIONS.offset,
       html: options.html ?? htmlFromAttr ?? DEFAULT_OPTIONS.html,
       delay: normalizeDelay(options.delay ?? delayFromAttr),
@@ -270,6 +271,14 @@ export default class Tooltip {
     this.refresh()
   }
 
+  getContent(): string {
+    return this.getTitle()
+  }
+
+  getConfig(): Readonly<typeof this.config> {
+    return this.config
+  }
+
   dispose(): void {
     this.clearTimer()
     if (this.rafId !== null) {
@@ -353,8 +362,9 @@ export default class Tooltip {
         this.rafId = null
         if (this.tip && this.tip.classList.contains('show')) {
           const rect = this.element.getBoundingClientRect()
-          const isVisible = rect.bottom > 0 && rect.top < window.innerHeight &&
-            rect.right > 0 && rect.left < window.innerWidth
+          const boundary = this.getBoundaryRect()
+          const isVisible = rect.bottom > boundary.top && rect.top < boundary.bottom &&
+            rect.right > boundary.left && rect.left < boundary.right
           if (isVisible) {
             this.updatePosition()
           } else {
@@ -476,6 +486,12 @@ export default class Tooltip {
     inner.textContent = title
   }
 
+  private getBoundaryRect(): DOMRect {
+    return this.config.boundary === 'viewport'
+      ? new DOMRect(0, 0, window.innerWidth, window.innerHeight)
+      : (this.config.boundary as HTMLElement).getBoundingClientRect()
+  }
+
   private updatePosition(): void {
     const tip = this.getTipElement()
 
@@ -489,8 +505,7 @@ export default class Tooltip {
 
     const scrollX = window.scrollX
     const scrollY = window.scrollY
-    const viewportWidth = window.innerWidth
-    const viewportHeight = window.innerHeight
+    const boundaryRect = this.getBoundaryRect()
     const offset = this.config.offset
 
     let top = 0
@@ -515,8 +530,10 @@ export default class Tooltip {
         break
     }
 
-    const clampedTop = clamp(top, scrollY + 4, scrollY + viewportHeight - tipRect.height - 4)
-    const clampedLeft = clamp(left, scrollX + 4, scrollX + viewportWidth - tipRect.width - 4)
+    const boundaryTop = boundaryRect.top + scrollY
+    const boundaryLeft = boundaryRect.left + scrollX
+    const clampedTop = clamp(top, boundaryTop + 4, boundaryTop + boundaryRect.height - tipRect.height - 4)
+    const clampedLeft = clamp(left, boundaryLeft + 4, boundaryLeft + boundaryRect.width - tipRect.width - 4)
 
     tip.style.top = `${Math.round(clampedTop)}px`
     tip.style.left = `${Math.round(clampedLeft)}px`
@@ -538,10 +555,11 @@ export default class Tooltip {
     }
 
     const offset = this.config.offset
-    const spaceTop = targetRect.top
-    const spaceBottom = window.innerHeight - targetRect.bottom
-    const spaceLeft = targetRect.left
-    const spaceRight = window.innerWidth - targetRect.right
+    const boundaryRect = this.getBoundaryRect()
+    const spaceTop = targetRect.top - boundaryRect.top
+    const spaceBottom = boundaryRect.bottom - targetRect.bottom
+    const spaceLeft = targetRect.left - boundaryRect.left
+    const spaceRight = boundaryRect.right - targetRect.right
 
     const fits = {
       top: spaceTop >= tipRect.height + offset,
