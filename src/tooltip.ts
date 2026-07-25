@@ -18,6 +18,7 @@ export interface TooltipOptions {
   offset?: number
   html?: boolean
   delay?: number | Partial<TooltipDelay>
+  maxWidth?: number | string
   customClass?: string
   animation?: TooltipAnimation
   template?: string
@@ -36,7 +37,7 @@ type ActiveTriggerState = {
 
 const DEFAULT_TEMPLATE = '<div class="cell-tooltip-arrow"></div><div class="cell-tooltip-inner"></div>'
 
-const DEFAULT_OPTIONS: Required<Omit<TooltipOptions, 'title' | 'container' | 'boundary' | 'onShow' | 'onHide'>> & { title: '' } = {
+const DEFAULT_OPTIONS: Required<Omit<TooltipOptions, 'title' | 'container' | 'boundary' | 'maxWidth' | 'onShow' | 'onHide'>> & { title: '' } = {
   title: '',
   placement: 'top',
   trigger: 'hover focus',
@@ -97,10 +98,11 @@ function normalizeTheme(theme: string | undefined): TooltipTheme {
 
 export default class Tooltip {
   private element: HTMLElement
-  private config: Required<Omit<TooltipOptions, 'title' | 'container' | 'boundary' | 'onShow' | 'onHide'>> & {
+  private config: Required<Omit<TooltipOptions, 'title' | 'container' | 'boundary' | 'maxWidth' | 'onShow' | 'onHide'>> & {
     title: string | ((element: HTMLElement) => string)
     container: HTMLElement
     boundary: HTMLElement | 'viewport'
+    maxWidth?: number | string
     delay: TooltipDelay
     onShow?: (tooltip: Tooltip) => void
     onHide?: (tooltip: Tooltip) => void
@@ -144,6 +146,7 @@ export default class Tooltip {
       offset: options.offset ?? offsetFromAttr ?? DEFAULT_OPTIONS.offset,
       html: options.html ?? htmlFromAttr ?? DEFAULT_OPTIONS.html,
       delay: normalizeDelay(options.delay ?? delayFromAttr),
+      maxWidth: options.maxWidth,
       customClass: options.customClass ?? customClassFromAttr ?? DEFAULT_OPTIONS.customClass,
       animation: options.animation ?? animationFromAttr ?? DEFAULT_OPTIONS.animation,
       template: options.template ?? DEFAULT_OPTIONS.template,
@@ -516,6 +519,12 @@ export default class Tooltip {
   private setContent(tip: HTMLElement): void {
     const inner = tip.querySelector('.cell-tooltip-inner') as HTMLElement
     if (!inner) return
+
+    if (this.config.maxWidth != null) {
+      inner.style.maxWidth = typeof this.config.maxWidth === 'number'
+        ? `${this.config.maxWidth}px`
+        : this.config.maxWidth
+    }
 
     const title = this.getTitle()
 
