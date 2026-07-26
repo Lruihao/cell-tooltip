@@ -515,14 +515,22 @@ export default class Tooltip {
       })
     }
 
+    const arrow = tip.querySelector('.cell-tooltip-arrow')
+    const inner = tip.querySelector('.cell-tooltip-inner')
+    if (!(arrow instanceof HTMLElement) || !(inner instanceof HTMLElement)) {
+      throw new Error('Tooltip template must contain .cell-tooltip-arrow and .cell-tooltip-inner elements')
+    }
+
     this.tip = tip
-    this.arrow = tip.querySelector('.cell-tooltip-arrow') as HTMLElement
+    this.arrow = arrow
     return tip
   }
 
   private setContent(tip: HTMLElement): void {
-    const inner = tip.querySelector('.cell-tooltip-inner') as HTMLElement
-    if (!inner) return
+    const inner = tip.querySelector('.cell-tooltip-inner')
+    if (!(inner instanceof HTMLElement)) {
+      throw new Error('Tooltip template is missing .cell-tooltip-inner element')
+    }
 
     if (this.config.maxWidth != null) {
       inner.style.maxWidth = typeof this.config.maxWidth === 'number'
