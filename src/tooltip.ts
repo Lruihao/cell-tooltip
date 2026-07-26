@@ -418,6 +418,9 @@ export default class Tooltip {
 
     this.bind(window, 'resize', throttledUpdate)
     this.bind(window, 'scroll', throttledUpdate)
+    if (this.config.container !== document.body) {
+      this.bind(this.config.container, 'scroll', throttledUpdate)
+    }
 
     this.bind(document, 'keydown', ((event: KeyboardEvent) => {
       if (event.key === 'Escape' && this.tip?.classList.contains('show')) {
@@ -552,6 +555,13 @@ export default class Tooltip {
     const targetRect = this.element.getBoundingClientRect()
     const tipRect = tip.getBoundingClientRect()
     const containerRect = this.config.container.getBoundingClientRect()
+    const isBodyContainer = this.config.container === document.body
+    const scrollTop = isBodyContainer ? window.scrollY : this.config.container.scrollTop
+    const scrollLeft = isBodyContainer ? window.scrollX : this.config.container.scrollLeft
+    const containerTop = isBodyContainer ? 0 : containerRect.top
+    const containerLeft = isBodyContainer ? 0 : containerRect.left
+    const viewportHeight = isBodyContainer ? window.innerHeight : this.config.container.clientHeight
+    const viewportWidth = isBodyContainer ? window.innerWidth : this.config.container.clientWidth
     const placement = this.resolvePlacement(targetRect, tipRect)
     tip.dataset.placement = placement
 
@@ -562,25 +572,25 @@ export default class Tooltip {
 
     switch (placement) {
       case 'top':
-        top = targetRect.top - containerRect.top - tipRect.height - offset
-        left = targetRect.left - containerRect.left + (targetRect.width - tipRect.width) / 2
+        top = targetRect.top - containerTop + scrollTop - tipRect.height - offset
+        left = targetRect.left - containerLeft + scrollLeft + (targetRect.width - tipRect.width) / 2
         break
       case 'bottom':
-        top = targetRect.bottom - containerRect.top + offset
-        left = targetRect.left - containerRect.left + (targetRect.width - tipRect.width) / 2
+        top = targetRect.bottom - containerTop + scrollTop + offset
+        left = targetRect.left - containerLeft + scrollLeft + (targetRect.width - tipRect.width) / 2
         break
       case 'left':
-        top = targetRect.top - containerRect.top + (targetRect.height - tipRect.height) / 2
-        left = targetRect.left - containerRect.left - tipRect.width - offset
+        top = targetRect.top - containerTop + scrollTop + (targetRect.height - tipRect.height) / 2
+        left = targetRect.left - containerLeft + scrollLeft - tipRect.width - offset
         break
       case 'right':
-        top = targetRect.top - containerRect.top + (targetRect.height - tipRect.height) / 2
-        left = targetRect.right - containerRect.left + offset
+        top = targetRect.top - containerTop + scrollTop + (targetRect.height - tipRect.height) / 2
+        left = targetRect.right - containerLeft + scrollLeft + offset
         break
     }
 
-    const clampedTop = clamp(top, 4, containerRect.height - tipRect.height - 4)
-    const clampedLeft = clamp(left, 4, containerRect.width - tipRect.width - 4)
+    const clampedTop = clamp(top, scrollTop + 4, scrollTop + viewportHeight - tipRect.height - 4)
+    const clampedLeft = clamp(left, scrollLeft + 4, scrollLeft + viewportWidth - tipRect.width - 4)
 
     tip.style.top = `${Math.round(clampedTop)}px`
     tip.style.left = `${Math.round(clampedLeft)}px`
@@ -641,8 +651,13 @@ export default class Tooltip {
     }
 
     const containerRect = this.config.container.getBoundingClientRect()
-    const targetCenterX = targetRect.left - containerRect.left + targetRect.width / 2
-    const targetCenterY = targetRect.top - containerRect.top + targetRect.height / 2
+    const isBodyContainer = this.config.container === document.body
+    const scrollTop = isBodyContainer ? window.scrollY : this.config.container.scrollTop
+    const scrollLeft = isBodyContainer ? window.scrollX : this.config.container.scrollLeft
+    const containerTop = isBodyContainer ? 0 : containerRect.top
+    const containerLeft = isBodyContainer ? 0 : containerRect.left
+    const targetCenterX = targetRect.left - containerLeft + scrollLeft + targetRect.width / 2
+    const targetCenterY = targetRect.top - containerTop + scrollTop + targetRect.height / 2
 
     if (placement === 'top' || placement === 'bottom') {
       const rawX = targetCenterX - tooltipRect.left
