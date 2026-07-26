@@ -224,7 +224,7 @@ if (showOnCreateBtn) {
 }
 
 // Dispose demo
-const disposeBtn = document.querySelector<HTMLElement>('#disposeBtn')
+const disposeBtn = document.querySelector<HTMLButtonElement>('#disposeBtn')
 if (disposeBtn) {
   const disposeTooltip = CellTooltip.getOrCreateInstance(disposeBtn, {
     title: '点击按钮销毁此 tooltip',
