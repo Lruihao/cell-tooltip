@@ -457,7 +457,11 @@ export default class Tooltip {
   }
 
   private leave(): void {
-    if (this.hasActiveTrigger()) {
+    const triggers = normalizeTriggers(this.config.trigger)
+    if (triggers.includes('hover')) {
+      this.activeTrigger.click = false
+      this.activeTrigger.focus = false
+    } else if (this.hasActiveTrigger()) {
       return
     }
 
