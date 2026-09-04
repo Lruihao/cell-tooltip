@@ -396,6 +396,8 @@ export default class Tooltip {
       }
     }
 
+    const isManual = normalizeTriggers(this.config.trigger).includes('manual')
+
     const throttledUpdate = () => {
       if (this.rafId !== null) {
         return
@@ -403,6 +405,10 @@ export default class Tooltip {
       this.rafId = requestAnimationFrame(() => {
         this.rafId = null
         if (this.tip && this.tip.classList.contains('show')) {
+          if (!isManual && !this.config.showOnCreate) {
+            this.hide()
+            return
+          }
           const rect = this.element.getBoundingClientRect()
           const boundary = this.getBoundaryRect()
           const isVisible = rect.bottom > boundary.top && rect.top < boundary.bottom &&
